@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  user_manager:
+    depends_on:
+      - local_mysql
+      - local_redis
+    image: user_manager:local
+    build:
+      context: .
+      args:
+        RUNNING_ENV: local
+    ports:
+      - "7531:7531"
+    command: ["python", "entrypoint.py"]
+    volumes:
+      - ./application:/app/application
+      - ./config:/app/config
+      - ./entrypoint.py:/app/entrypoint.py
+      - ./run_tests:/app/run_tests
+
+    environment:
+      DB_CONFIG: "../config/database.json"
+      APP_CONFIG: "../config/application.json"
+      PYTHONDONTWRITEBYTECODE: 1
+  local_mysql:
+    image: mysql/mysql-server:5.7.37
+    restart: unless-stopped
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - ./mysql/my.cnf:/etc/my.cnf:ro
+      - ./mysql/entrypoint/sql_init.sql:/docker-entrypoint-initdb.d/sql_init.sql
+  local_redis:
+    image: redis:6.2.6
+    restart: unless-stopped
+    expose:
+      - "6379"

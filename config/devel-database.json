@@ -1,0 +1,14 @@
+{
+    "default": {
+        "debug": false,
+        "pool_size": 10
+    },
+    "user_manager": {
+        "master": {
+            "db_uri": "mysql+asyncmy://BE_user_manager:password@local_mysql/user_manager"
+        },
+        "read_only": {
+            "db_uri": "mysql+asyncmy://BE_user_manager:password@local_mysql/user_manager"
+        }
+    }
+}

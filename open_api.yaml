@@ -1,0 +1,285 @@
+swagger: "2.0"
+info:
+  description: "Simple CRUD application for user management"
+  version: "1.0.0"
+  title: "User manager"
+  contact:
+    email: "vrsndr@gmail.com"
+paths:
+  /user:
+    post:
+      tags:
+      - "user"
+      summary: "Create a new customer"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Customer creation fields"
+        required: true
+        schema:
+          $ref: "#/definitions/CreateRequest"
+      responses:
+        "201":
+          description: "User ID"
+          schema:
+            type: "integer"
+        "400":
+          description: "Validation error or user already taken"
+          schema:
+            type: "string"
+            example: "Error message"
+  /user/{user_id}:
+    patch:
+      tags:
+      - "user/{user_id}"
+      summary: "Update an existing customer"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Customer update fields"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateRequest"
+      - in: "path"
+        name: "user_id"
+        required: true
+        type: "integer"
+      responses:
+        "200":
+          description: "User Object"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Validation error or user already taken"
+          schema:
+            type: "string"
+            example: "Error message"
+        "404":
+          description: "User doesn't exist"
+          schema:
+            type: "string"
+            example: "User doesn't exist"
+    delete:
+      tags:
+      - "user/{user_id}"
+      summary: "Disable an existing customer"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "user_id"
+        required: true
+        type: "integer"
+      responses:
+        "204":
+          description: "User disabled"
+        "404":
+          description: "User doesn't exist"
+          schema:
+            type: "string"
+            example: "User doesn't exist"
+  /user/search:
+    post:
+      tags:
+      - "user/search"
+      summary: "Search users"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Customer search fields"
+        required: true
+        schema:
+          $ref: "#/definitions/SearchRequest"
+      responses:
+        "200":
+          description: "List of users and number of pages"
+          schema:
+            $ref: "#/definitions/SearchResponse"
+  /user/login:
+    post:
+      tags:
+      - "user/login"
+      summary: "Login a user in"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Customer login fields"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginRequest"
+      responses:
+        "200":
+          description: "User Object"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Validation error or authentication failed"
+definitions:
+  CreateRequest:
+    type: "object"
+    required:
+      - "name"
+      - "email"
+      - "password"
+    properties:
+      name:
+        type: "string"
+        example: "Andrea Aversa"
+      email:
+        type: "string"
+        example: "vrsndr@gmail.com"
+      password:
+        type: "string"
+        example: "abcdABCD1234"
+        format: "password"
+        description: "Min 10 chars, at least one uppercase, one lowercase and one digit"
+  LoginRequest:
+    type: "object"
+    required:
+      - "email"
+      - "password"
+    properties:
+      email:
+        type: "string"
+        example: "vrsndr@gmail.com"
+      password:
+        type: "string"
+        example: "abcdABCD1234"
+        format: "password"
+  UpdateRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "Andrea Aversa"
+      email:
+        type: "string"
+        example: "vrsndr@gmail.com"
+      status:
+        type: "string"
+        description: "User status"
+        enum:
+        - "ACTIVE"
+        - "DISABLED"
+      password:
+        type: "string"
+        example: "abcdABCD1234"
+        format: "password"
+        description: "Min 10 chars, at least one uppercase, one lowercase and one digit"
+  DatetimeIntervalObject:
+    type: "object"
+    properties:
+      datetime_from:
+        type: "string"
+        format: "date-time"
+        description: "Timezone aware datetime"
+      datetime_to:
+        type: "string"
+        format: "date-time"
+        description: "Timezone aware datetime"
+  SortByObject:
+    type: "object"
+    properties:
+      column:
+        type: "string"
+        enum:
+        - "id"
+        - "name"
+        - "email"
+        - "status"
+        - "created_at"
+        - "last_modified"
+        - "last_login"
+      order:
+        type: "string"
+        enum:
+        - "ASC"
+        - "DESC"
+  SearchRequest:
+    type: "object"
+    properties:
+      user_ids:
+        type: "array"
+        items:
+          type: "integer"
+      name:
+        type: "string"
+        example: "Andrea Aversa"
+      email:
+        type: "string"
+        example: "vrsndr@gmail.com"
+      status:
+        type: "string"
+        description: "User status"
+        enum:
+        - "ACTIVE"
+        - "DISABLED"
+      created:
+        type: "object"
+        $ref: "#/definitions/DatetimeIntervalObject"
+      updated:
+        type: "object"
+        $ref: "#/definitions/DatetimeIntervalObject"
+      logged_in:
+        type: "object"
+        $ref: "#/definitions/DatetimeIntervalObject"
+      sort_by:
+        type: "array"
+        items:
+          $ref: "#/definitions/SortByObject"
+      limit:
+        type: "integer"
+        minimum: 1
+        maximum: 100
+      page:
+        type: "integer"
+  SearchResponse:
+    type: "object"
+    properties:
+      users:
+        type: "array"
+        items:
+          $ref: "#/definitions/User"
+      pages:
+        type: "integer"
+  User:
+    type: "object"
+    required:
+      - "name"
+      - "email"
+      - "password"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "Andrea Aversa"
+      email:
+        type: "string"
+        example: "vrsndr@gmail.com"
+      status:
+        type: "string"
+        description: "User status"
+        enum:
+        - "ACTIVE"
+        - "DISABLED"
+      last_login:
+        type: "string"
+        format: "date-time"

@@ -1,0 +1,8 @@
+{
+    "host": "",
+    "port": "7531",
+    "loglevel": "INFO",
+    "redis": {
+        "host": "local_redis"
+    }
+}
